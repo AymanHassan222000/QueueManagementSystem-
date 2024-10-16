@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QMS.DAL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27095899ac7f443b17d7dc100f728694d3e1da33")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2195b28f70db87f67df203b066fcaa3635a70ac0")]
 [assembly: System.Reflection.AssemblyProductAttribute("QMS.DAL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QMS.DAL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
