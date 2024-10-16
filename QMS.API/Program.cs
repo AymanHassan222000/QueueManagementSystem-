@@ -1,3 +1,6 @@
+using QMS.API;
+using QMS.DAL.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +9,42 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Registration Connection String
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+	options.UseSqlServer(
+		builder.Configuration.GetConnectionString("DefaultConnection"),
+		b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
+	)
+);
+
+
+//Registration Jwt Bearer Token
+var jwtOptions = builder.Configuration.GetSection("JWT").Get<JWT>();
+builder.Services.AddSingleton(jwtOptions);
+
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+	.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+	{
+		options.SaveToken = true;
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidIssuer = jwtOptions.Issuer,
+			ValidateAudience = true,
+			ValidAudience = jwtOptions.Audience,
+			ValidateIssuerSigningKey = true,
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+			ValidateLifetime = true,
+			ClockSkew = TimeSpan.Zero
+		};
+
+	});
+
 
 var app = builder.Build();
 
