@@ -11,13 +11,13 @@ namespace QMS.BL.Models
 	{
 		public long Id { get; set; }
 
-		[Required, MaxLength(30))]
+		[Required, MaxLength(30), RegularExpression(@"^[^\d]*$")] 
 		public required string FirstName { get; set; }
 
-		[Required, MaxLength(30)]
+		[Required, MaxLength(30), RegularExpression(@"^[^\d]*$")]
 		public required string LastName { get; set; }
 
-		[Required, MaxLength(10)]
+		[Required, MaxLength(10), RegularExpression("(?!)Male|Female")]
 		public required string Gender { get; set; }
 
 		[Required]
@@ -44,7 +44,7 @@ namespace QMS.BL.Models
 		[MaxLength(100)]
 		public required string UserName { get; set; }
 
-		[MaxLength(100), RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$"]
+		[MaxLength(100), RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")]
 		public required string Password { get; set; }
 
 		public DateTime CreatedOn { get; set; } = DateTime.Now;

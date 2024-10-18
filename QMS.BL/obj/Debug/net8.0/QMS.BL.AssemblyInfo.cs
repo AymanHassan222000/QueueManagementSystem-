@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QMS.BL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b9478e174e357362215c83bca53acef52c72bba")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+52122385a9e67c55ae3fbd481d04876abcb19f60")]
 [assembly: System.Reflection.AssemblyProductAttribute("QMS.BL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QMS.BL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

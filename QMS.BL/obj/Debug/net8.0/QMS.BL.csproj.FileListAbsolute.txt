@@ -1,0 +1,11 @@
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\QMS.BL.GeneratedMSBuildEditorConfig.editorconfig
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\QMS.BL.AssemblyInfoInputs.cache
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\QMS.BL.AssemblyInfo.cs
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\QMS.BL.csproj.CoreCompileInputs.cache
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\bin\Debug\net8.0\QMS.BL.deps.json
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\bin\Debug\net8.0\QMS.BL.dll
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\bin\Debug\net8.0\QMS.BL.pdb
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\QMS.BL.dll
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\refint\QMS.BL.dll
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\QMS.BL.pdb
+D:\QueueManagementSystem\QueueManagementSystem\QMS.BL\obj\Debug\net8.0\ref\QMS.BL.dll

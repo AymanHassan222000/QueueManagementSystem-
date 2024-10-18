@@ -9,13 +9,13 @@ namespace QMS.BL.DTOs
 {
 	public class UserDTO
 	{
-		[Required, MaxLength(30)]
+		[Required, MaxLength(30), RegularExpression(@"^[^\d]*$")]
 		public required string FirstName { get; set; }
 
-		[Required, MaxLength(30)]
+		[Required, MaxLength(30), RegularExpression(@"^[^\d]*$")]
 		public required string LastName { get; set; }
 
-		[Required, MaxLength(10)]
+		[Required, MaxLength(10), RegularExpression("(?!)Male|Female")]
 		public required string Gender { get; set; }
 
 		[Required]
@@ -24,7 +24,7 @@ namespace QMS.BL.DTOs
 		[Required, MaxLength(100), EmailAddress]
 		public required string Email { get; set; }
 
-		[Required, MaxLength(15)]
+		[Required, MaxLength(15), RegularExpression(@"^\d+$")]
 		public required string Phone { get; set; }
 
 		[Required, MaxLength(50)]
@@ -39,21 +39,21 @@ namespace QMS.BL.DTOs
 		[MaxLength(50)]
 		public required string Country { get; set; }
 
-		[MaxLength(100)]
+		[MaxLength(100), MinLength(5)]
 		public required string UserName { get; set; }
 
-		[MaxLength(100)]
+		[MaxLength(100), MinLength(8), RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")]
 		public required string Password { get; set; }
 
-		public DateTime? CreatedOn { get; set; }
+		//public DateTime? CreatedOn { get; set; }
 
-		[MaxLength(100)]
-		public required string CreatedBy { get; set; }
+		//[MaxLength(100)]
+		//public required string CreatedBy { get; set; }
 
-		public DateTime? ModifiedOn { get; set; }
+		//public DateTime? ModifiedOn { get; set; }
 
-		[MaxLength(100)]
-		public required string ModifiedBy { get; set; }
+		//[MaxLength(100)]
+		//public required string ModifiedBy { get; set; }
 
 		public long? BranchId { get; set; }
 

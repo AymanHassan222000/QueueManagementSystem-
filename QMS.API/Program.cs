@@ -1,5 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using QMS.API;
+using QMS.API.AuthenticationServices;
+using QMS.BL.Interfaces;
 using QMS.DAL.Data;
+using QMS.DAL.Repositories;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +24,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 		b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
 	)
 );
+
+//Registration BaseRepository
+builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+//Registration AuthService
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+//Registration UserRepository
+builder.Services.AddScoped<UserRepository>();
+
+//Registration Auto Mapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 
 
 //Registration Jwt Bearer Token

@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "xMROGfHadUo=",
+  "dgSpecHash": "bL/mO2Lha5I=",
   "success": true,
   "projectFilePath": "D:\\QueueManagementSystem\\QueueManagementSystem\\QMS.API\\QMS.API.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ayman\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\ayman\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\ayman\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
     "C:\\Users\\ayman\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.10\\microsoft.aspnetcore.authentication.jwtbearer.8.0.10.nupkg.sha512",
