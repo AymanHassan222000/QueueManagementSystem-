@@ -25,5 +25,7 @@ namespace QMS.BL.DTOs
 
 		public int UserQueueId { get; set; }
 
+		public bool? IsDeleted { get; set; }
+
 	}
 }

@@ -46,5 +46,8 @@ namespace QMS.BL.DTOs
 		public required string ModifiedBy { get; set; }
 
 		public long CompanyId { get; set; }
+
+		public bool? IsDeleted { get; set; }
+
 	}
 }

@@ -25,5 +25,7 @@ namespace QMS.BL.DTOs
 
 		public long UserId { get; set; }
 
+		public bool? IsDeleted { get; set; }
+
 	}
 }

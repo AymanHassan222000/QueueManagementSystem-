@@ -27,5 +27,7 @@ namespace QMS.BL.DTOs
 		[DisplayName("Modified By"),MaxLength(100)]
 		public required string ModifiedBy { get; set; }
 
+		public bool? IsDeleted { get; set; }
+
 	}
 }

@@ -27,6 +27,7 @@ namespace QMS.BL.DTOs
 
 		public byte ServiceId { get; set; }
 
+		public bool? IsDeleted { get; set; }
 
 	}
 }

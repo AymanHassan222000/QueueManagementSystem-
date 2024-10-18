@@ -42,5 +42,7 @@ namespace QMS.BL.Models
 
 		public long CompanyId { get; set; }
 
+		public bool IsDeleted { get; set; }
+
 	}
 }

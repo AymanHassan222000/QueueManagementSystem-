@@ -27,5 +27,6 @@ namespace QMS.BL.Models
 
 		public int UserQueueId { get; set; }
 
+		public bool IsDeleted { get; set; }
 	}
 }

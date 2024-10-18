@@ -27,5 +27,7 @@ namespace QMS.BL.Models
 		[MaxLength(100)]
 		public string ModifiedBy { get; set; }
 
+		public bool IsDeleted { get; set; }
+
 	}
 }

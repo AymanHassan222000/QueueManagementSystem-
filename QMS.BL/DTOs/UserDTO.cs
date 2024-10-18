@@ -57,5 +57,7 @@ namespace QMS.BL.DTOs
 
 		public long? BranchId { get; set; }
 
+		public bool? IsDeleted { get; set; }
+
 	}
 }

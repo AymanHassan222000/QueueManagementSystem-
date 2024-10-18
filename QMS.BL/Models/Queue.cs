@@ -33,5 +33,6 @@ namespace QMS.BL.Models
 
 		public long BranchId { get; set; }
 
+		public bool IsDeleted { get; set; }
 	}
 }

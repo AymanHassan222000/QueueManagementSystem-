@@ -33,5 +33,7 @@ namespace QMS.BL.Models
 
 		public byte ServiceId { get; set; }
 
+		public bool IsDeleted { get; set; }
+
 	}
 }
