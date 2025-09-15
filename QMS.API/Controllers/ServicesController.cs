@@ -1,77 +1,71 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.DAL.Repositories.Interfaces;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class ServicesController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class ServicesController : ControllerBase
-	{
-		private readonly IBaseRepository<Service> _serviceRepository;
-		private readonly IMapper _mapper;
-		public ServicesController(IBaseRepository<Service> serviceRepository, IMapper mapper)
-		{
-			_serviceRepository = serviceRepository;
-			_mapper = mapper;
-		}
+	//private readonly IBaseRepository<Service> _serviceRepository;
+	//private readonly IMapper _mapper;
+	//public ServicesController(IBaseRepository<Service> serviceRepository, IMapper mapper)
+	//{
+	//	_serviceRepository = serviceRepository;
+	//	_mapper = mapper;
+	//}
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _serviceRepository.GetAll());
-		}
+	//[HttpGet("GetAll")]
+	//public async Task<IActionResult> GetAllAsync()
+	//{
+	//	return Ok(await _serviceRepository.GetAll());
+	//}
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(byte id)
-		{
-			var service = await _serviceRepository.GetById(id);
+	//[HttpGet("GetById/{id}")]
+	//public async Task<IActionResult> GetByIdAsync(byte id)
+	//{
+	//	var service = await _serviceRepository.GetById(id);
 
-			if (service is null)
-				return NotFound();
+	//	if (service is null)
+	//		return NotFound();
 
-			return Ok(service);
-		}
+	//	return Ok(service);
+	//}
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync(ServiceDTO dto)
-		{
-			var service = _mapper.Map<Service>(dto);
+	//[HttpPost("Create")]
+	//public async Task<IActionResult> CreateAsync(ServiceDTO dto)
+	//{
+	//	var service = _mapper.Map<Service>(dto);
 
-			await _serviceRepository.Add(service);
+	//	await _serviceRepository.Add(service);
 
-			return Ok(service);
-		}
+	//	return Ok(service);
+	//}
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(byte id, [FromBody] ServiceDTO dto)
-		{
-			var service = await _serviceRepository.GetById(id);
+	//[HttpPut("Update/{id}")]
+	//public async Task<IActionResult> Update(byte id, [FromBody] ServiceDTO dto)
+	//{
+	//	var service = await _serviceRepository.GetById(id);
 
-			if (service is null)
-				return NotFound();
+	//	if (service is null)
+	//		return NotFound();
 
-			_mapper.Map(dto, service);
-			_serviceRepository.Update(service);
+	//	_mapper.Map(dto, service);
+	//	_serviceRepository.Update(service);
 
-			return Ok(service);
-		}
+	//	return Ok(service);
+	//}
 
-		[HttpPut("Delete/{id}")]
-		public async Task<IActionResult> Delete(byte id)
-		{
-			var service = await _serviceRepository.GetById(id);
+	//[HttpPut("Delete/{id}")]
+	//public async Task<IActionResult> Delete(byte id)
+	//{
+	//	var service = await _serviceRepository.GetById(id);
 
-			if (service is null)
-				return NotFound();
+	//	if (service is null)
+	//		return NotFound();
 
-			_serviceRepository.Delete(service);
+	//	_serviceRepository.Delete(service);
 
-			return Ok(service);
-		}
+	//	return Ok(service);
+	//}
 
-	}
 }

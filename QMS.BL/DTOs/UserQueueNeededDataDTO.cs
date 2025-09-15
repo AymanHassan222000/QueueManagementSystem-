@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QMS.BL.DTOs
+namespace QMS.DAL.DTOs
 {
 	public class UserQueueNeededDataDTO
 	{

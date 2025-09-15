@@ -1,77 +1,80 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.BranchDTOs;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[Action]")]
+[ApiController]
+public class BranchesController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class BranchesController : ControllerBase
-	{
-		private readonly IBaseRepository<Branch> _branchRepository;
-		private readonly IMapper _mapper;
-		public BranchesController(IBaseRepository<Branch> branchRepository, IMapper mapper)
-		{
-			_branchRepository = branchRepository;
-			_mapper = mapper;
-		}
+    private readonly IBranchService _branchServices;
+    public BranchesController(IBranchService branchServices)
+    {
+        _branchServices = branchServices;
+    }
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _branchRepository.GetAll());
-		}
+    [HttpGet]
+    public async Task<IActionResult> GetAllBranchesAsync()
+    {
+        var result = await _branchServices.GetAllBranchesAsync();
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(long id)
-		{
-			var branch = await _branchRepository.GetById(id);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			if (branch is null)
-				return NotFound();
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			return Ok(branch);
-		}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetBranchByIdAsync(int id)
+    {
+        var result = await _branchServices.GetBranchByIdAsync(id);
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync(BranchDTO dto)
-		{
-			var branch = _mapper.Map<Branch>(dto);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			await _branchRepository.Add(branch);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
 
-			return Ok(branch);
-		}
+    }
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(long id, [FromBody] BranchDTO dto)
-		{
-			var branch = await _branchRepository.GetById(id);
+    [HttpPost]
+    public async Task<IActionResult> CreateBranchAsync(CreateBranchDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (branch is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			_mapper.Map(dto, branch);
-			_branchRepository.Update(branch);
+        var result = await _branchServices.CreateBranchAsync(dto,userId);
 
-			return Ok(branch);
-		}
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-		[HttpDelete("Delete/{id}")]
-		public async Task<IActionResult> Delete(long id)
-		{
-			var branch = await _branchRepository.GetById(id);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			if (branch is null)
-				return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateBranchAsync(int id, [FromBody] UpdateBranchDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			_branchRepository.Delete(branch);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			return Ok(branch);
-		}
+        var result = await _branchServices.UpdateBranchAsync(id,dto, userId);
 
-	}
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteBranchAsync(int id)
+    {
+        var result = await _branchServices.DeleteBranchAsync(id);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 }

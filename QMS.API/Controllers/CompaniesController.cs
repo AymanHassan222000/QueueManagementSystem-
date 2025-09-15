@@ -1,77 +1,81 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.CompanyDTOs;
 
-namespace QMS.API.Controllers
+
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[Action]")]
+[ApiController]
+public class CompaniesController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class CompaniesController : ControllerBase
-	{
-		private readonly IBaseRepository<Company> _companyRepository;
-		private readonly IMapper _mapper;
-		public CompaniesController(IBaseRepository<Company> companyRepository, IMapper mapper)
-		{
-			_companyRepository = companyRepository;
-			_mapper = mapper;
-		}
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _companyRepository.GetAll());
-		}
+    private readonly ICompanyService _companyService;
+    public CompaniesController(ICompanyService companyService)
+    {
+        _companyService = companyService;
+    }
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(long id)
-		{
-			var company = await _companyRepository.GetById(id);
+    [HttpPost]
+    public async Task<IActionResult> CreateCompanyAsync(CreateCompanyDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (company is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			return Ok(company);
-		}
+        var result = await _companyService.CreateCompanyAsync(dto, userId);
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync(CompanyDTO dto)
-		{
-			var company = _mapper.Map<Company>(dto);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			await _companyRepository.Add(company);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+    }
 
-			return Ok(company);
-		}
+    [HttpGet]
+    public async Task<IActionResult> GetAllCompaniesAsync()
+    {
+        var result = await _companyService.GetAllCompaniesAsync();
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(long id, [FromBody] CompanyDTO dto)
-		{
-			var company = await _companyRepository.GetById(id);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			if (company is null)
-				return NotFound();
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			_mapper.Map(dto, company);
-			_companyRepository.Update(company);
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCompanyByIdAsync(int id)
+    {
+        var result = await _companyService.GetCompanyByIdAsync(id);
 
-			return Ok(company);
-		}
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-		[HttpDelete("Delete/{id}")]
-		public async Task<IActionResult> Delete(long id)
-		{
-			var company = await _companyRepository.GetById(id);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			if (company is null)
-				return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCompanyAsync(int id, [FromBody] UpdateCompanyDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			_companyRepository.Delete(company);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			return Ok(company);
-		}
+        var result = await _companyService.UpdateCompanyAsync(id, dto, userId);
 
-	}
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCompanyAsync(int id)
+    {
+        var result = await _companyService.DeleteCompanyAsync(id);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 }

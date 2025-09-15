@@ -1,0 +1,14 @@
+﻿global using AutoMapper;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.IdentityModel.Tokens;
+global using QMS.DAL.Models;
+global using System.Text;
+global using Microsoft.Data.SqlClient;
+global using Microsoft.EntityFrameworkCore;
+global using QMS.DAL.UnitOfWork;
+global using System.Diagnostics;
+global using System.Linq.Expressions;
+global using System.Security.Claims;
+global using QMS.BL.Services.Interfaces;
+global using QMS.API.Common.Extensions;

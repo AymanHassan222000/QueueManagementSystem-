@@ -1,81 +1,81 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.SubscriptionDTOs;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[Action]")]
+[ApiController]
+public class SubscriptionsController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class SubscriptionsController : ControllerBase
-	{
-		private readonly IBaseRepository<Subscription> _subscriptionRepository;
-		private readonly IMapper _mapper;
+    private readonly ISubscriptionService _subscriptionService;
+    public SubscriptionsController(ISubscriptionService subscriptionService)
+    {
+        _subscriptionService = subscriptionService;
+    }
 
-		public SubscriptionsController(IBaseRepository<Subscription> subscriptionRepository, IMapper mapper)
-		{
-			_subscriptionRepository = subscriptionRepository;
-			_mapper = mapper;
-		}
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _subscriptionRepository.GetAll());
-		}
+    [HttpGet]
+    public async Task<IActionResult> GetAllSubscriptionsAsync()
+    {
+        var result = await _subscriptionService.GetAllSubscriptionsAsync();
 
-		[HttpGet("GetById/id")]
-		public async Task<IActionResult> GetByIdAsync(int id)
-		{
-			var subscription = await _subscriptionRepository.GetById(id);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			if (subscription is null)
-				return NotFound();
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
 
-			return Ok(subscription);
-		}
+    }
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync([FromBody] SubscriptionDTO dto)
-		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetSubscriptionByIdAsync(int id)
+    {
+        var result = await _subscriptionService.GetSubscriptionByIdAsync(id);
 
-			var subscription = _mapper.Map<Subscription>(dto);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			await _subscriptionRepository.Add(subscription);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			return Ok(subscription);
-		}
+    [HttpPost]
+    public async Task<IActionResult> CreateSubscriptionAsync([FromBody] CreateSubscriptionDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> UpdateAsync(int id, [FromBody] SubscriptionDTO dto)
-		{
-			var subscription = await _subscriptionRepository.GetById(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			if (subscription is null)
-				return NotFound();
+        var result = await _subscriptionService.CreateSubscriptionAsync(dto, userId);
 
-			_mapper.Map(dto, subscription);
-			_subscriptionRepository.Update(subscription);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			return Ok(subscription);
-		}
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-		[HttpPut("Delete/{id}")]
-		public async Task<IActionResult> UpdateAsync(int id)
-		{
-			var subscription = await _subscriptionRepository.GetById(id);
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateSubscriptionAsync(int id, [FromBody] UpdateSubscriptionDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (subscription is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			_subscriptionRepository.Delete(subscription);
+        var result = await _subscriptionService.UpdateSubscriptionAsync(id,dto, userId);
 
-			return Ok(subscription);
-		}
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-	}
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteSubscriptionAsync(int id)
+    {
+        var result = await _subscriptionService.DeleteSubscriptionAsync(id);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 }

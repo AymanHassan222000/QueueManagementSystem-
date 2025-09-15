@@ -1,77 +1,82 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.RoleDTOs;
+using QMS.DAL.Models;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[Action]")]
+[ApiController]
+public class RolesController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class RolesController : ControllerBase
-	{
-		private readonly IBaseRepository<Role> _roleRepository;
-		private readonly IMapper _mapper;
-		public RolesController(IBaseRepository<Role> roleRepository, IMapper mapper)
-		{
-			_roleRepository = roleRepository;
-			_mapper = mapper;
-		}
+    private readonly IRoleService _roleService;
+    public RolesController(IRoleService roleService)
+    {
+        _roleService = roleService;
+    }
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _roleRepository.GetAll());
-		}
+    [HttpGet]
+    public async Task<IActionResult> GetAllRolesAsync()
+    {
+        var result = await _roleService.GetAllRolesAsync();
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(byte id)
-		{
-			var role = await _roleRepository.GetById(id);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			if (role is null)
-				return NotFound();
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
 
-			return Ok(role);
-		}
+    }
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync(RoleDTO dto)
-		{
-			var role = _mapper.Map<Role>(dto);
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetRoleByIdAsync(byte id)
+    {
+        var result = await _roleService.GetRoleByIdAsync(id);
 
-			await _roleRepository.Add(role);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			return Ok(role);
-		}
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+    }
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(byte id, [FromBody] RoleDTO dto)
-		{
-			var role = await _roleRepository.GetById(id);
+    [HttpPost]
+    public async Task<IActionResult> CreateRoleAsync(CreateRoleDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (role is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
+        var result = await _roleService.CreateRoleAsync(dto, userId);
 
-			_mapper.Map(dto, role);
-			_roleRepository.Update(role);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError ,result.Errors);
 
-			return Ok(role);
-		}
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+    }
 
-		[HttpPut("Delete/{id}")]
-		public async Task<IActionResult> Delete(byte id)
-		{
-			var role = await _roleRepository.GetById(id);
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRoleAsync(byte id, [FromBody] UpdateRoleDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (role is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
+        var result = await _roleService.UpdateRoleAsync(id,dto, userId);
 
-			_roleRepository.Delete(role);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			return Ok(role);
-		}
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
 
-	}
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> DeleteRoleAsync(byte id)
+    {
+        var result = await _roleService.DeleteRoleAsync(id);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+
+    }
+
 }

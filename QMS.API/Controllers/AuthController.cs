@@ -1,48 +1,44 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QMS.BL.AuthenticationModels;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
+﻿using QMS.DAL.Repositories.Interfaces;
 
-namespace QMS.API.Controllers
-{
-	[Route("api/[controller]")]
-	[ApiController]
-	public class AuthController : ControllerBase
-	{
-		private readonly IAuthService _authService;
+namespace QMS.API.Controllers;
 
-		public AuthController(IAuthService authService)
-		{
-			_authService = authService;
-		}
+//[Route("api/[controller]")]
+//[ApiController]
+//public class AuthController : ControllerBase
+//{
+//	private readonly IAuthService _authService;
 
-		[HttpPost("Register")]
-		public async Task<IActionResult> RegisterAsync(UserDTO dto)
-		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
+//	public AuthController(IAuthService authService)
+//	{
+//		_authService = authService;
+//	}
 
-			var result = await _authService.RegisterAsync(dto);
+//	[HttpPost("Register")]
+//	public async Task<IActionResult> RegisterAsync(UserDTO dto)
+//	{
+//		if (!ModelState.IsValid)
+//			return BadRequest(ModelState);
 
-			if (!result.IsAuthenticated)
-				return BadRequest(result.Message);
+//		var result = await _authService.RegisterAsync(dto);
 
-			return Ok(result);
-		}
+//		if (!result.IsAuthenticated)
+//			return BadRequest(result.Message);
 
-		[HttpPost("GetToken")]
-		public async Task<IActionResult> GetTokenAsync(TokenRequestModel model)
-		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
+//		return Ok(result);
+//	}
 
-			var result = await _authService.GetTokenAsync(model);
+//	[HttpPost("GetToken")]
+//	public async Task<IActionResult> GetTokenAsync(TokenRequestModel model)
+//	{
+//		if (!ModelState.IsValid)
+//			return BadRequest(ModelState);
 
-			if (!result.IsAuthenticated)
-				return BadRequest(result.Message);
+//		var result = await _authService.GetTokenAsync(model);
 
-			return Ok(result);
-		}
+//		if (!result.IsAuthenticated)
+//			return BadRequest(result.Message);
 
-	}
-}
+//		return Ok(result);
+//	}
+
+//}

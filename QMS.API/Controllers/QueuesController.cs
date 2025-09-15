@@ -1,77 +1,79 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.QueueDTOs;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[Action]")]
+[ApiController]
+public class QueuesController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class QueuesController : ControllerBase
-	{
-		private readonly IBaseRepository<Queue> _queueRepository;
-		private readonly IMapper _mapper;
-		public QueuesController(IBaseRepository<Queue> queueRepository, IMapper mapper)
-		{
-			_queueRepository = queueRepository;
-			_mapper = mapper;
-		}
+    private readonly IQueueService _queueService;
+    public QueuesController(IQueueService queueService)
+    {
+        _queueService = queueService;
+    }
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _queueRepository.GetAll());
-		}
+    [HttpGet]
+    public async Task<IActionResult> GetAllQueuesAsync()
+    {
+        var result = await _queueService.GetAllQueueAsync();
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetById(long id)
-		{
-			var queue = await _queueRepository.GetById(id);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			if (queue is null)
-				return NotFound();
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+    }
 
-			return Ok(queue);
-		}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetQueueByIdAsync(int id)
+    {
+        var result = await _queueService.GetQueueByIdAsync(id);
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> Create(QueueDTO dto)
-		{
-			var queue = _mapper.Map<Queue>(dto);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			await _queueRepository.Add(queue);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+    }
 
-			return Ok(queue);
-		}
+    [HttpPost]
+    public async Task<IActionResult> CreateQueueAsync(QueueRequestDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(long id, [FromBody] QueueDTO dto)
-		{
-			var queue = await _queueRepository.GetById(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
+        var result = await _queueService.CreateQueueAsync(dto, userId);
 
-			if (queue is null)
-				return NotFound();
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			_mapper.Map(dto, queue);
-			_queueRepository.Update(queue);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
 
-			return Ok(queue);
-		}
+    }
 
-		[HttpDelete("Delete/{id}")]
-		public async Task<IActionResult> Delete(long id)
-		{
-			var queue = await _queueRepository.GetById(id);
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateQueueAsync(int id, [FromBody] QueueRequestDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (queue is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
+        var result = await _queueService.UpdateQueueAsync(id, dto, userId);
 
-			_queueRepository.Delete(queue);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			return Ok(queue);
-		}
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
 
-	}
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteQueueAsync(int id)
+    {
+        var result = await _queueService.DeleteQueueAsync(id);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status201Created, result.Value);
+    }
 }

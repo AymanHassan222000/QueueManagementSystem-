@@ -1,77 +1,124 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.FeedbackDTOs;
+using QMS.DAL.UnitOfWork;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[Action]")]
+[ApiController]
+public class FeedbacksController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class FeedbacksController : ControllerBase
-	{
-		private readonly IBaseRepository<Feedback> _feedbackRepository;
-		private readonly IMapper _mapper;
-		public FeedbacksController(IBaseRepository<Feedback> feedbackRepository, IMapper mapper)
-		{
-			_feedbackRepository = feedbackRepository;
-			_mapper = mapper;
-		}
+    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<FeedbacksController> _logger;
+    public FeedbacksController(IMapper mapper, 
+                               IUnitOfWork unitOfWork,
+                               ILogger<FeedbacksController> logger)
+    {
+        _mapper = mapper;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
+    }
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _feedbackRepository.GetAll());
-		}
+    [HttpGet()]
+    public async Task<IActionResult> GetAllFeedbacksAsync()
+    {
+        try
+        {
+            return Ok(await _unitOfWork.Feedbacks.GetAllAsync());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error Getting All Feedbacks");
+            return StatusCode(500, "An error occurred while processing your request");
+        }
+    }
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(long id)
-		{
-			var feedback = await _feedbackRepository.GetById(id);
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetFeedbackByIdAsync(int id)
+    {
+        try
+        {
+            var feedback = await _unitOfWork.Feedbacks.GetByIdAsync(id);
 
-			if (feedback is null)
-				return NotFound();
+            if (feedback is null)
+                return NotFound();
 
-			return Ok(feedback);
-		}
+            return Ok(feedback);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error getting Feedback with ID {id}");
+            return StatusCode(500, "An error occurred while processing your request");
+        }
+    }
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync(FeedbackDTO dto)
-		{
-			var feedbacks = _mapper.Map<Feedback>(dto);
+    [HttpPost()]
+    public async Task<IActionResult> CreateFeedbackAsync(FeedbackDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-			await _feedbackRepository.Add(feedbacks);
+        try
+        {
+            var feedbacks = _mapper.Map<Feedback>(dto);
 
-			return Ok(feedbacks);
-		}
+            await _unitOfWork.Feedbacks.AddAsync(feedbacks);
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(long id, [FromBody] FeedbackDTO dto)
-		{
-			var feedback = await _feedbackRepository.GetById(id);
+            return StatusCode(201, feedbacks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating Feedback");
+            return StatusCode(500, "An error occurred while processing your request");
+        }
+    }
 
-			if (feedback == null)
-				return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateFeedbackAsync(int id, [FromBody] FeedbackDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-			_mapper.Map(dto, feedback);
-			_feedbackRepository.Update(feedback);
+        try
+        {
+            var feedback = await _unitOfWork.Feedbacks.GetByIdAsync(id);
 
-			return Ok(feedback);
-		}
+            if (feedback == null)
+                return NotFound();
 
-		[HttpDelete("Delete/{id}")]
-		public async Task<IActionResult> Delete(long id)
-		{
-			var feedback = await _feedbackRepository.GetById(id);
+            _mapper.Map(dto, feedback);
+            _unitOfWork.Feedbacks.Update(feedback);
+            await _unitOfWork.CompleteAsync();
 
-			if (feedback is null)
-				return NotFound();
+            return Ok(feedback);
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogError(ex, $"Error updating Feedback with ID {id}");
+            return StatusCode(500, "An error occurred while processing your request");
 
-			_feedbackRepository.Delete(feedback);
+        }
+    }
 
-			return Ok(feedback);
-		}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteFeedbackAsync(int id)
+    {
+        try
+        {
+            var feedback = await _unitOfWork.Feedbacks.GetByIdAsync(id);
 
-	}
+            if (feedback is null)
+                return NotFound();
+
+            _unitOfWork.Feedbacks.Delete(feedback);
+
+            return Ok(feedback);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error deleting Feedback with ID {id}");
+            return StatusCode(500, "An error occurred while processing your request");
+        }
+    }
+
 }

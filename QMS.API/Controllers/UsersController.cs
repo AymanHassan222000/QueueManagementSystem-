@@ -1,84 +1,83 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using QMS.BL.DTOs.BranchDTOs;
+using QMS.BL.DTOs.UserDTOs;
 
-namespace QMS.API.Controllers
+namespace QMS.API.Controllers;
+
+[Route("api/[controller]/[action]")]
+[ApiController]
+public class UsersController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	[Authorize]
-	public class UsersController : ControllerBase
-	{
-		private readonly IBaseRepository<User> _userRepository;
-		private readonly JWT _jwtOptions;
-		private readonly IMapper _mapper;
-		public UsersController(IBaseRepository<User> userRepository, JWT jwtOptions, IMapper mapper)
-		{
-			_userRepository = userRepository;
-			_jwtOptions = jwtOptions;
-			_mapper = mapper;
-		}
+    private readonly IUserService _userService;
+    public UsersController(IUserService userServices)
+    {
+        _userService = userServices;
+    }
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _userRepository.GetAll());
-		}
+    [HttpGet]
+    public async Task<IActionResult> GetAllUsersAsync()
+    {
+        var result = await _userService.GetAllUsersAsync();
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(long id)
-		{
-			var user = await _userRepository.GetById(id);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			if (user is null)
-				return NotFound();
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			return Ok(user);
-		}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserByIdAsync(int id)
+    {
+        var result = await _userService.GetUserByIdAsync(id);
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> CreateAsync(UserDTO dto)
-		{
-			var user = _mapper.Map<User>(dto);
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			await _userRepository.Add(user);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
 
-			return Ok(user);
-		}
+    }
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(long id, [FromBody] UserDTO dto)
-		{
-			var user = await _userRepository.GetById(id);
+    [HttpPost]
+    public async Task<IActionResult> CreateUserAsync(CreateUserDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			if (user is null)
-				return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			_mapper.Map(dto, user);
-			_userRepository.Update(user);
+        var result = await _userService.CreateUserAsync(dto, userId);
 
-			return Ok(user);
-		}
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-		[HttpDelete("Delete/{id}")]
-		public async Task<IActionResult> Delete(long id)
-		{
-			var user = await _userRepository.GetById(id);
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
 
-			if (user is null)
-				return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUserAsync(int id, [FromBody] UpdateUserDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return this.HandleInvalidModelState();
 
-			_userRepository.Delete(user);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			return Ok(user);
-		}
-	}
+        var result = await _userService.UpdateUserAsync(id, dto, userId);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUserAsync(int id)
+    {
+        var result = await _userService.DeleteUserAsync(id);
+
+        if (result.IsFailure)
+            return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+        return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+    }
+
+
 }

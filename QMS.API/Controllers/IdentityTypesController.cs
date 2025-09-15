@@ -1,78 +1,85 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using QMS.BL.DTOs;
-using QMS.BL.Interfaces;
-using QMS.BL.Models;
+﻿using QMS.BL.DTOs.BranchDTOs;
+using QMS.BL.DTOs.IdentityTypesDTOs;
+using QMS.DAL.Repositories.Interfaces;
 
 namespace QMS.API.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/[controller]/[Action]")]
 	[ApiController]
 	public class IdentityTypesController : ControllerBase
 	{
-		private readonly IBaseRepository<IdentityType> _identityTypeRepository;
-		private readonly IMapper _mapper;
-		public IdentityTypesController(IBaseRepository<IdentityType> identityTypeRepository, IMapper mapper)
-		{
-			_identityTypeRepository = identityTypeRepository;
-			_mapper = mapper;
-		}
+		private readonly IIdentityTypeService _identityTypeService;
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllAsync()
-		{
-			return Ok(await _identityTypeRepository.GetAll());
-		}
+        public IdentityTypesController(IIdentityTypeService identityTypeService)
+        {
+            _identityTypeService = identityTypeService;
+        }
 
-		[HttpGet("GetById/{id}")]
-		public async Task<IActionResult> GetByIdAsync(long id)
-		{
-			var identityType = await _identityTypeRepository.GetById(id);
+        [HttpGet]
+        public async Task<IActionResult> GetAllIdentityTypesAsync()
+        {
+            var result = await _identityTypeService.GetAllIdentityTypesAsync();
 
-			if (identityType is null)
-				return NotFound();
+            if (result.IsFailure)
+                return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			return Ok(identityType);
-		}
+            return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+        }
 
-		[HttpPut("Create")]
-		public async Task<IActionResult> CreateAsync(IdentityTypeDTO dto)
-		{
-			var identityType = _mapper.Map<IdentityType>(dto);
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetIdentityTypeByIdAsync(byte id)
+        {
+            var result = await _identityTypeService.GetIdentityTypeByIdAsync(id);
 
-			await _identityTypeRepository.Add(identityType);
+            if (result.IsFailure)
+                return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-			return Ok(identityType);
-		}
+            return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
 
-		[HttpPut("Update/{id}")]
-		public async Task<IActionResult> Update(long id, [FromBody] IdentityTypeDTO dto)
-		{
-			var identityType = await _identityTypeRepository.GetById(id);
+        }
 
-			if (identityType is null)
-				return NotFound();
+        [HttpPost]
+        public async Task<IActionResult> CreateIdentityTypeAsync(IdentityTypeRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return this.HandleInvalidModelState();
 
-			_mapper.Map(dto, identityType);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			_identityTypeRepository.Update(identityType);
+            var result = await _identityTypeService.CreateIdentityTypeAsync(dto, userId);
 
-			return Ok(identityType);
-		}
+            if (result.IsFailure)
+                return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
 
-		[HttpDelete("Delete/{id}")]
-		public async Task<IActionResult> Delete(long id)
-		{
-			var identityType = await _identityTypeRepository.GetById(id);
+            return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+        }
 
-			if (identityType is null)
-				return NotFound();
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateIdentityTypeAsync(byte id, [FromBody] IdentityTypeRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return this.HandleInvalidModelState();
 
-			_identityTypeRepository.Delete(identityType);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)?.ToString() ?? "System";
 
-			return Ok(identityType);
-		}
+            var result = await _identityTypeService.UpdateIdentityTypeAsync(id, dto, userId);
 
-	}
+            if (result.IsFailure)
+                return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+            return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteIdentityTypeAsync(byte id)
+        {
+            var result = await _identityTypeService.DeleteIdentityTypeAsync(id);
+
+            if (result.IsFailure)
+                return StatusCode(result.StatusCode ?? StatusCodes.Status500InternalServerError, result.Errors);
+
+            return StatusCode(result.StatusCode ?? StatusCodes.Status200OK, result.Value);
+        }
+
+    }
 }
